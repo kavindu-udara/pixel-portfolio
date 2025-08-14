@@ -1,0 +1,2019 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Portfolio - CRT Edition</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            cursor: none !important;
+        }
+
+        body {
+            background-color: #000;
+            color: #ECF0F1;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #F39C12;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform 0.1s ease;
+        }
+
+        .cursor-follower {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(243, 156, 18, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transition: transform 0.3s ease;
+        }
+
+        .cursor-trail {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background-color: #F39C12;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9997;
+            opacity: 0;
+        }
+
+        /* Cursor effects */
+        .cursor-click {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 2px solid #F39C12;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9996;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0);
+        }
+
+        .cursor-text {
+            position: fixed;
+            font-size: 10px;
+            color: #F39C12;
+            pointer-events: none;
+            z-index: 9995;
+            opacity: 0;
+            transform: translate(-50%, -50%);
+            text-shadow: 0 0 10px rgba(243, 156, 18, 0.8);
+        }
+
+        .cursor-glitch {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background-color: #F39C12;
+            pointer-events: none;
+            z-index: 9994;
+            opacity: 0;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+        }
+
+        /* CRT Container */
+        .crt-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        /* CRT Screen Effect */
+        .crt::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 4px, 4px 100%;
+            pointer-events: none;
+        }
+
+        .crt::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: rgba(18, 16, 16, 0.1);
+            opacity: 0;
+            z-index: 2;
+            pointer-events: none;
+            animation: flicker 0.15s infinite;
+        }
+
+        /* Screen Curvature */
+        .crt-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px 10px 10px 10px / 20px 20px 20px 20px;
+            overflow: hidden;
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Vignette Effect */
+        .vignette {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.9);
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        /* Scanlines */
+        .scanlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15),
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            z-index: 2;
+            pointer-events: none;
+            animation: scanlines 8s linear infinite;
+        }
+
+        /* Screen Noise */
+        .noise {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.02;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Screen Crack Effect - Now on top of everything */
+        .screen-crack {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                transparent 0%,
+                rgba(255, 255, 255, 0.1) 50%,
+                transparent 100%
+            );
+            opacity: 0;
+            z-index: 10000; /* Increased to be above everything */
+            pointer-events: none;
+            animation: crack 5s infinite;
+        }
+
+        /* Pixel grid background */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            z-index: -1;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #2C3E50;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #F39C12;
+            border: 2px solid #2C3E50;
+        }
+
+        /* Header - Adjusted z-index */
+        header {
+            background-color: #34495E;
+            padding: 20px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000; /* Lower than screen-crack */
+            border-bottom: 4px solid #F39C12;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 16px;
+            color: #F39C12;
+            text-decoration: none;
+            animation: blink 2s infinite;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: #ECF0F1;
+            text-decoration: none;
+            font-size: 10px;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #F39C12;
+        }
+
+        /* Three.js container */
+        #three-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding-top: 80px;
+            position: relative;
+            overflow: hidden;
+            z-index: 5; /* Lower than screen-crack */
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #F39C12;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+            text-shadow: 0 0 10px rgba(243, 156, 18, 0.7);
+        }
+
+        .hero-subtitle {
+            font-size: 14px;
+            margin-bottom: 30px;
+            text-align: center;
+            max-width: 600px;
+            opacity: 0;
+            transform: translateY(30px);
+            text-shadow: 0 0 5px rgba(236, 240, 241, 0.5);
+        }
+
+        .pixel-button {
+            background-color: #F39C12;
+            color: #2C3E50;
+            padding: 12px 24px;
+            border: none;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            cursor: none !important;
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            transition: transform 0.1s;
+            opacity: 0;
+            transform: translateY(30px);
+            box-shadow: 0 0 10px rgba(243, 156, 18, 0.5);
+        }
+
+        .pixel-button:hover {
+            transform: scale(1.05);
+        }
+
+        .pixel-button:active {
+            transform: scale(0.95);
+        }
+
+        /* Sections - Adjusted z-index */
+        section {
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 5; /* Lower than screen-crack */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 40px;
+            color: #F39C12;
+            text-align: center;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+            text-shadow: 0 0 10px rgba(243, 156, 18, 0.7);
+        }
+
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background-color: #F39C12;
+            box-shadow: 0 0 10px rgba(243, 156, 18, 0.7);
+        }
+
+        /* About Section */
+        .about-content {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .about-text {
+            flex: 2;
+        }
+
+        .about-image {
+            flex: 1;
+            text-align: center;
+        }
+
+        .pixel-avatar {
+            width: 200px;
+            height: 200px;
+            background-color: #3498DB;
+            border: 4px solid #F39C12;
+            position: relative;
+            margin: 0 auto;
+            box-shadow: 0 0 20px rgba(52, 152, 219, 0.5);
+        }
+
+        .avatar-head {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            background-color: #F1C40F;
+            top: 20px;
+            left: 40px;
+        }
+
+        .avatar-eye {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background-color: #2C3E50;
+            top: 50px;
+        }
+
+        .avatar-eye.left {
+            left: 50px;
+        }
+
+        .avatar-eye.right {
+            right: 50px;
+        }
+
+        .avatar-mouth {
+            position: absolute;
+            width: 40px;
+            height: 16px;
+            border-bottom: 4px solid #2C3E50;
+            bottom: 30px;
+            left: 80px;
+        }
+
+        /* Skills Section */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .skill-card {
+            background-color: #34495E;
+            padding: 20px;
+            border: 4px solid #2C3E50;
+            transition: transform 0.3s, border-color 0.3s;
+            box-shadow: 0 0 10px rgba(52, 73, 94, 0.3);
+        }
+
+        .skill-card:hover {
+            transform: translateY(-5px);
+            border-color: #F39C12;
+            box-shadow: 0 0 20px rgba(243, 156, 18, 0.5);
+        }
+
+        .skill-name {
+            font-size: 14px;
+            margin-bottom: 15px;
+            color: #F39C12;
+            text-shadow: 0 0 5px rgba(243, 156, 18, 0.5);
+        }
+
+        .skill-level {
+            height: 16px;
+            background-color: #2C3E50;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-progress {
+            height: 100%;
+            background-color: #F39C12;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0;
+            box-shadow: 0 0 10px rgba(243, 156, 18, 0.7);
+        }
+
+        /* Projects Section */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .project-card {
+            background-color: #34495E;
+            border: 4px solid #2C3E50;
+            overflow: hidden;
+            transition: transform 0.3s, border-color 0.3s;
+            box-shadow: 0 0 10px rgba(52, 73, 94, 0.3);
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            border-color: #F39C12;
+            box-shadow: 0 0 20px rgba(243, 156, 18, 0.5);
+        }
+
+        .project-image {
+            height: 180px;
+            background-color: #2C3E50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-pixel-art {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .project-pixel {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+        }
+
+        .project-info {
+            padding: 20px;
+        }
+
+        .project-title {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #F39C12;
+            text-shadow: 0 0 5px rgba(243, 156, 18, 0.5);
+        }
+
+        .project-description {
+            font-size: 10px;
+            margin-bottom: 15px;
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tag {
+            background-color: #2C3E50;
+            color: #ECF0F1;
+            padding: 5px 10px;
+            font-size: 8px;
+        }
+
+        /* Blogs Section */
+        .blogs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .blog-card {
+            background-color: #34495E;
+            border: 4px solid #2C3E50;
+            overflow: hidden;
+            transition: transform 0.3s, border-color 0.3s;
+            box-shadow: 0 0 10px rgba(52, 73, 94, 0.3);
+        }
+
+        .blog-card:hover {
+            transform: translateY(-5px);
+            border-color: #F39C12;
+            box-shadow: 0 0 20px rgba(243, 156, 18, 0.5);
+        }
+
+        .blog-image {
+            height: 200px;
+            background-color: #2C3E50;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .blog-pixel-art {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .blog-pixel {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+        }
+
+        .blog-info {
+            padding: 20px;
+        }
+
+        .blog-date {
+            font-size: 8px;
+            color: #95A5A6;
+            margin-bottom: 10px;
+        }
+
+        .blog-title {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #F39C12;
+            text-shadow: 0 0 5px rgba(243, 156, 18, 0.5);
+        }
+
+        .blog-excerpt {
+            font-size: 10px;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .blog-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .blog-author {
+            font-size: 8px;
+            color: #95A5A6;
+        }
+
+        .read-more {
+            color: #F39C12;
+            text-decoration: none;
+            font-size: 8px;
+            transition: transform 0.3s;
+        }
+
+        .read-more:hover {
+            transform: translateX(5px);
+        }
+
+        /* Contact Section */
+        .contact-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .contact-form {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 10px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            background-color: #34495E;
+            border: 4px solid #2C3E50;
+            color: #ECF0F1;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #F39C12;
+            box-shadow: 0 0 10px rgba(243, 156, 18, 0.5);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .contact-links {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .contact-link {
+            width: 50px;
+            height: 50px;
+            background-color: #34495E;
+            border: 4px solid #2C3E50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ECF0F1;
+            text-decoration: none;
+            font-size: 20px;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .contact-link:hover {
+            transform: scale(1.1);
+            border-color: #F39C12;
+            box-shadow: 0 0 20px rgba(243, 156, 18, 0.5);
+        }
+
+        /* Footer - Adjusted z-index */
+        footer {
+            background-color: #34495E;
+            padding: 30px 20px;
+            text-align: center;
+            border-top: 4px solid #F39C12;
+            position: relative;
+            z-index: 5; /* Lower than screen-crack */
+        }
+
+        .footer-text {
+            font-size: 10px;
+            margin-bottom: 10px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .footer-links a {
+            color: #ECF0F1;
+            text-decoration: none;
+            font-size: 8px;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #F39C12;
+        }
+
+        /* Animations */
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        @keyframes flicker {
+            0% {
+                opacity: 0.27861;
+            }
+            5% {
+                opacity: 0.34769;
+            }
+            10% {
+                opacity: 0.23604;
+            }
+            15% {
+                opacity: 0.90626;
+            }
+            20% {
+                opacity: 0.18128;
+            }
+            25% {
+                opacity: 0.83891;
+            }
+            30% {
+                opacity: 0.65583;
+            }
+            35% {
+                opacity: 0.67807;
+            }
+            40% {
+                opacity: 0.26559;
+            }
+            45% {
+                opacity: 0.84693;
+            }
+            50% {
+                opacity: 0.96019;
+            }
+            55% {
+                opacity: 0.08594;
+            }
+            60% {
+                opacity: 0.20313;
+            }
+            65% {
+                opacity: 0.71988;
+            }
+            70% {
+                opacity: 0.53455;
+            }
+            75% {
+                opacity: 0.37288;
+            }
+            80% {
+                opacity: 0.71428;
+            }
+            85% {
+                opacity: 0.70419;
+            }
+            90% {
+                opacity: 0.7003;
+            }
+            95% {
+                opacity: 0.36108;
+            }
+            100% {
+                opacity: 0.24387;
+            }
+        }
+
+        @keyframes scanlines {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 0 10px;
+            }
+        }
+
+        @keyframes crack {
+            0% {
+                opacity: 0;
+                transform: translateY(-100%);
+            }
+            10% {
+                opacity: 0.8;
+            }
+            20% {
+                opacity: 0;
+                transform: translateY(100%);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100%);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero-title {
+                font-size: 24px;
+            }
+            
+            .hero-subtitle {
+                font-size: 10px;
+            }
+            
+            .about-content {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- CRT Container -->
+    <div class="crt-container">
+        <div class="crt-screen crt">
+            <div class="vignette"></div>
+            <div class="scanlines"></div>
+            <div class="noise"></div>
+        </div>
+    </div>
+
+    <!-- Custom Cursor Elements -->
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+    <div class="cursor-click"></div>
+    <div class="cursor-text"></div>
+    <div class="cursor-glitch"></div>
+
+    <!-- Header -->
+    <header>
+        <nav>
+            <a href="#" class="logo">PIXEL.PORTFOLIO</a>
+            <ul class="nav-links">
+                <li><a href="#home" data-cursor-text="HOME">HOME</a></li>
+                <li><a href="#about" data-cursor-text="ABOUT">ABOUT</a></li>
+                <li><a href="#skills" data-cursor-text="SKILLS">SKILLS</a></li>
+                <li><a href="#projects" data-cursor-text="PROJECTS">PROJECTS</a></li>
+                <li><a href="#blogs" data-cursor-text="BLOGS">BLOGS</a></li>
+                <li><a href="#contact" data-cursor-text="CONTACT">CONTACT</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Three.js Container -->
+    <div id="three-container"></div>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">PIXEL DEVELOPER</h1>
+            <p class="hero-subtitle">CREATING DIGITAL WORLDS WITH CODE AND PIXELS</p>
+            <a href="#projects" class="pixel-button" data-cursor-text="EXPLORE">VIEW PROJECTS</a>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <h2 class="section-title">ABOUT ME</h2>
+        <div class="about-content">
+            <div class="about-text">
+                <p>HELLO! I'M A PIXEL ARTIST AND WEB DEVELOPER WITH A PASSION FOR CREATING RETRO-INSPIRED DIGITAL EXPERIENCES.</p>
+                <p>WITH OVER 5 YEARS OF EXPERIENCE IN FRONT-END DEVELOPMENT, I SPECIALIZE IN CREATING UNIQUE, INTERACTIVE WEBSITES THAT STAND OUT FROM THE CROWD.</p>
+                <p>MY APPROACH COMBINES MODERN WEB TECHNOLOGIES WITH AESTHETICS INSPIRED BY CLASSIC VIDEO GAMES, RESULTING IN PROJECTS THAT ARE BOTH FUNCTIONAL AND NOSTALGIC.</p>
+            </div>
+            <div class="about-image">
+                <div class="pixel-avatar">
+                    <div class="avatar-head"></div>
+                    <div class="avatar-eye left"></div>
+                    <div class="avatar-eye right"></div>
+                    <div class="avatar-mouth"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills">
+        <h2 class="section-title">MY SKILLS</h2>
+        <div class="skills-grid">
+            <div class="skill-card">
+                <h3 class="skill-name">HTML/CSS</h3>
+                <div class="skill-level">
+                    <div class="skill-progress" data-width="95%"></div>
+                </div>
+            </div>
+            <div class="skill-card">
+                <h3 class="skill-name">JAVASCRIPT</h3>
+                <div class="skill-level">
+                    <div class="skill-progress" data-width="90%"></div>
+                </div>
+            </div>
+            <div class="skill-card">
+                <h3 class="skill-name">PIXEL ART</h3>
+                <div class="skill-level">
+                    <div class="skill-progress" data-width="85%"></div>
+                </div>
+            </div>
+            <div class="skill-card">
+                <h3 class="skill-name">UI/UX DESIGN</h3>
+                <div class="skill-level">
+                    <div class="skill-progress" data-width="80%"></div>
+                </div>
+            </div>
+            <div class="skill-card">
+                <h3 class="skill-name">REACT</h3>
+                <div class="skill-level">
+                    <div class="skill-progress" data-width="85%"></div>
+                </div>
+            </div>
+            <div class="skill-card">
+                <h3 class="skill-name">GAME DEVELOPMENT</h3>
+                <div class="skill-level">
+                    <div class="skill-progress" data-width="75%"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects">
+        <h2 class="section-title">MY PROJECTS</h2>
+        <div class="projects-grid">
+            <div class="project-card">
+                <div class="project-image">
+                    <div class="project-pixel-art">
+                        <div class="project-pixel" style="background-color: #3498DB; top: 0; left: 0; width: 100%; height: 20px;"></div>
+                        <div class="project-pixel" style="background-color: #2ECC71; top: 20px; left: 0; width: 100%; height: 20px;"></div>
+                        <div class="project-pixel" style="background-color: #E74C3C; top: 40px; left: 0; width: 100%; height: 20px;"></div>
+                        <div class="project-pixel" style="background-color: #F39C12; top: 60px; left: 0; width: 100%; height: 20px;"></div>
+                        <div class="project-pixel" style="background-color: #9B59B6; top: 80px; left: 0; width: 100%; height: 20px;"></div>
+                        <div class="project-pixel" style="background-color: #1ABC9C; top: 100px; left: 0; width: 100%; height: 20px;"></div>
+                        <div class="project-pixel" style="background-color: #34495E; top: 120px; left: 0; width: 100%; height: 60px;"></div>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <h3 class="project-title">PIXEL QUEST</h3>
+                    <p class="project-description">A RETRO-STYLE RPG BUILT WITH HTML5 AND JAVASCRIPT, FEATURING CUSTOM PIXEL ART AND ANIMATIONS.</p>
+                    <div class="project-tags">
+                        <span class="tag">JAVASCRIPT</span>
+                        <span class="tag">PIXEL ART</span>
+                        <span class="tag">GAME DEV</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="project-card">
+                <div class="project-image">
+                    <div class="project-pixel-art">
+                        <div class="project-pixel" style="background-color: #E74C3C; top: 0; left: 0; width: 100%; height: 40px;"></div>
+                        <div class="project-pixel" style="background-color: #ECF0F1; top: 40px; left: 0; width: 100%; height: 80px;"></div>
+                        <div class="project-pixel" style="background-color: #3498DB; top: 120px; left: 0; width: 100%; height: 20px;"></div>
+                        <div class="project-pixel" style="background-color: #2ECC71; top: 140px; left: 0; width: 100%; height: 40px;"></div>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <h3 class="project-title">RETRO BLOG</h3>
+                    <p class="project-description">A BLOG PLATFORM WITH A PIXEL ART AESTHETIC, FEATURING CUSTOM ANIMATIONS AND INTERACTIVE ELEMENTS.</p>
+                    <div class="project-tags">
+                        <span class="tag">REACT</span>
+                        <span class="tag">CSS</span>
+                        <span class="tag">UI/UX</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="project-card">
+                <div class="project-image">
+                    <div class="project-pixel-art">
+                        <div class="project-pixel" style="background-color: #F39C12; top: 0; left: 0; width: 100%; height: 30px;"></div>
+                        <div class="project-pixel" style="background-color: #34495E; top: 30px; left: 0; width: 100%; height: 70px;"></div>
+                        <div class="project-pixel" style="background-color: #9B59B6; top: 100px; left: 0; width: 100%; height: 30px;"></div>
+                        <div class="project-pixel" style="background-color: #1ABC9C; top: 130px; left: 0; width: 100%; height: 50px;"></div>
+                    </div>
+                </div>
+                <div class="project-info">
+                    <h3 class="project-title">PIXEL PORTAL</h3>
+                    <p class="project-description">AN INTERACTIVE PORTAL SHOWCASING VARIOUS PIXEL ART CREATIONS AND MINI-GAMES.</p>
+                    <div class="project-tags">
+                        <span class="tag">HTML5</span>
+                        <span class="tag">JAVASCRIPT</span>
+                        <span class="tag">ANIMATION</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blogs Section -->
+    <section id="blogs">
+        <h2 class="section-title">MY BLOGS</h2>
+        <div class="blogs-grid">
+            <div class="blog-card">
+                <div class="blog-image">
+                    <div class="blog-pixel-art">
+                        <div class="blog-pixel" style="background-color: #3498DB; top: 0; left: 0; width: 100%; height: 40px;"></div>
+                        <div class="blog-pixel" style="background-color: #2ECC71; top: 40px; left: 0; width: 100%; height: 40px;"></div>
+                        <div class="blog-pixel" style="background-color: #E74C3C; top: 80px; left: 0; width: 100%; height: 40px;"></div>
+                        <div class="blog-pixel" style="background-color: #F39C12; top: 120px; left: 0; width: 100%; height: 40px;"></div>
+                        <div class="blog-pixel" style="background-color: #9B59B6; top: 160px; left: 0; width: 100%; height: 40px;"></div>
+                    </div>
+                </div>
+                <div class="blog-info">
+                    <div class="blog-date">OCT 15, 2023</div>
+                    <h3 class="blog-title">THE ART OF PIXEL PERFECT DESIGN</h3>
+                    <p class="blog-excerpt">EXPLORING THE PRINCIPLES OF PIXEL ART DESIGN AND HOW TO CREATE STUNNING VISUALS WITH LIMITED RESOURCES.</p>
+                    <div class="blog-meta">
+                        <span class="blog-author">BY PIXEL DEV</span>
+                        <a href="blog-post.html" class="read-more" data-cursor-text="READ">READ MORE →</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="blog-card">
+                <div class="blog-image">
+                    <div class="blog-pixel-art">
+                        <div class="blog-pixel" style="background-color: #E74C3C; top: 0; left: 0; width: 100%; height: 50px;"></div>
+                        <div class="blog-pixel" style="background-color: #ECF0F1; top: 50px; left: 0; width: 100%; height: 50px;"></div>
+                        <div class="blog-pixel" style="background-color: #3498DB; top: 100px; left: 0; width: 100%; height: 50px;"></div>
+                        <div class="blog-pixel" style="background-color: #2ECC71; top: 150px; left: 0; width: 100%; height: 50px;"></div>
+                    </div>
+                </div>
+                <div class="blog-info">
+                    <div class="blog-date">SEP 28, 2023</div>
+                    <h3 class="blog-title">JAVASCRIPT GAMES: FROM ZERO TO HERO</h3>
+                    <p class="blog-excerpt">A COMPREHENSIVE GUIDE TO BUILDING RETRO-STYLE GAMES USING PURE JAVASCRIPT AND HTML5 CANVAS.</p>
+                    <div class="blog-meta">
+                        <span class="blog-author">BY PIXEL DEV</span>
+                        <a href="#" class="read-more" data-cursor-text="READ">READ MORE →</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="blog-card">
+                <div class="blog-image">
+                    <div class="blog-pixel-art">
+                        <div class="blog-pixel" style="background-color: #F39C12; top: 0; left: 0; width: 100%; height: 30px;"></div>
+                        <div class="blog-pixel" style="background-color: #34495E; top: 30px; left: 0; width: 100%; height: 30px;"></div>
+                        <div class="blog-pixel" style="background-color: #9B59B6; top: 60px; left: 0; width: 100%; height: 30px;"></div>
+                        <div class="blog-pixel" style="background-color: #1ABC9C; top: 90px; left: 0; width: 100%; height: 30px;"></div>
+                        <div class="blog-pixel" style="background-color: #E74C3C; top: 120px; left: 0; width: 100%; height: 30px;"></div>
+                        <div class="blog-pixel" style="background-color: #3498DB; top: 150px; left: 0; width: 100%; height: 30px;"></div>
+                        <div class="blog-pixel" style="background-color: #2ECC71; top: 180px; left: 0; width: 100%; height: 20px;"></div>
+                    </div>
+                </div>
+                <div class="blog-info">
+                    <div class="blog-date">AUG 12, 2023</div>
+                    <h3 class="blog-title">CSS ANIMATIONS: PIXEL PERFECT MOVEMENTS</h3>
+                    <p class="blog-excerpt">LEARN HOW TO CREATE SMOOTH, PIXEL-PERFECT ANIMATIONS USING PURE CSS AND KEYFRAMES.</p>
+                    <div class="blog-meta">
+                        <span class="blog-author">BY PIXEL DEV</span>
+                        <a href="#" class="read-more" data-cursor-text="READ">READ MORE →</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="blog-card">
+                <div class="blog-image">
+                    <div class="blog-pixel-art">
+                        <div class="blog-pixel" style="background-color: #9B59B6; top: 0; left: 0; width: 100%; height: 40px;"></div>
+                        <div class="blog-pixel" style="background-color: #34495E; top: 40px; left: 0; width: 100%; height: 40px;"></div>
+                        <div class="blog-pixel" style="background-color: #F39C12; top: 80px; left: 0; width: 100%; height: 40px;"></div>
+                        <div class="blog-pixel" style="background-color: #2ECC71; top: 120px; left: 0; width: 100%; height: 40px;"></div>
+                        <div class="blog-pixel" style="background-color: #E74C3C; top: 160px; left: 0; width: 100%; height: 40px;"></div>
+                    </div>
+                </div>
+                <div class="blog-info">
+                    <div class="blog-date">JUL 05, 2023</div>
+                    <h3 class="blog-title">RETRO UI DESIGN: LESSONS FROM THE PAST</h3>
+                    <p class="blog-excerpt">HOW CLASSIC VIDEO GAME INTERFACES CAN INSPIRE MODERN UI/UX DESIGN PRINCIPLES.</p>
+                    <div class="blog-meta">
+                        <span class="blog-author">BY PIXEL DEV</span>
+                        <a href="#" class="read-more" data-cursor-text="READ">READ MORE →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact">
+        <h2 class="section-title">GET IN TOUCH</h2>
+        <div class="contact-content">
+            <p>INTERESTED IN WORKING TOGETHER? SEND ME A MESSAGE!</p>
+            
+            <form class="contact-form">
+                <div class="form-group">
+                    <label for="name">NAME</label>
+                    <input type="text" id="name" class="form-control" placeholder="YOUR NAME">
+                </div>
+                <div class="form-group">
+                    <label for="email">EMAIL</label>
+                    <input type="email" id="email" class="form-control" placeholder="YOUR EMAIL">
+                </div>
+                <div class="form-group">
+                    <label for="message">MESSAGE</label>
+                    <textarea id="message" class="form-control" placeholder="YOUR MESSAGE"></textarea>
+                </div>
+                <button type="submit" class="pixel-button" data-cursor-text="SEND">SEND MESSAGE</button>
+            </form>
+            
+            <div class="contact-links">
+                <a href="#" class="contact-link" data-cursor-text="GITHUB">G</a>
+                <a href="#" class="contact-link" data-cursor-text="LINKEDIN">L</a>
+                <a href="#" class="contact-link" data-cursor-text="TWITTER">T</a>
+                <a href="#" class="contact-link" data-cursor-text="MAIL">M</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p class="footer-text">© 2023 PIXEL.PORTFOLIO | ALL RIGHTS RESERVED</p>
+        <div class="footer-links">
+            <a href="#" data-cursor-text="PRIVACY">PRIVACY</a>
+            <a href="#" data-cursor-text="TERMS">TERMS</a>
+            <a href="#" data-cursor-text="SITEMAP">SITEMAP</a>
+        </div>
+    </footer>
+
+    <!-- Screen Crack Effect - Now on top of everything -->
+    <div class="screen-crack"></div>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        // Register GSAP plugins
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Create noise texture for CRT effect
+        function createNoise() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 200;
+            canvas.height = 200;
+            
+            const imageData = ctx.createImageData(canvas.width, canvas.height);
+            const data = imageData.data;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const value = Math.random() * 255;
+                data[i] = value;     // R
+                data[i + 1] = value; // G
+                data[i + 2] = value; // B
+                data[i + 3] = 255;   // A
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+            return canvas.toDataURL();
+        }
+
+        // Apply noise to the noise element
+        document.querySelector('.noise').style.backgroundImage = `url(${createNoise()})`;
+
+        // Custom Cursor System
+        const cursor = document.querySelector('.cursor');
+        const cursorFollower = document.querySelector('.cursor-follower');
+        const cursorClick = document.querySelector('.cursor-click');
+        const cursorText = document.querySelector('.cursor-text');
+        const cursorGlitch = document.querySelector('.cursor-glitch');
+        const cursorTrails = [];
+        
+        // Create cursor trails
+        for (let i = 0; i < 10; i++) {
+            const trail = document.createElement('div');
+            trail.className = 'cursor-trail';
+            document.body.appendChild(trail);
+            cursorTrails.push(trail);
+        }
+
+        let mouseX = 0;
+        let mouseY = 0;
+        let cursorX = 0;
+        let cursorY = 0;
+        let followerX = 0;
+        let followerY = 0;
+
+        // Mouse move handler
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        // Cursor animation loop
+        function animateCursor() {
+            // Smooth cursor movement
+            cursorX += (mouseX - cursorX) * 0.2;
+            cursorY += (mouseY - cursorY) * 0.2;
+            
+            // Smooth follower movement
+            followerX += (mouseX - followerX) * 0.1;
+            followerY += (mouseY - followerY) * 0.1;
+            
+            // Update positions
+            cursor.style.left = cursorX - 10 + 'px';
+            cursor.style.top = cursorY - 10 + 'px';
+            
+            cursorFollower.style.left = followerX - 20 + 'px';
+            cursorFollower.style.top = followerY - 20 + 'px';
+            
+            // Update trails
+            cursorTrails.forEach((trail, index) => {
+                const delay = index * 0.02;
+                const trailX = cursorX - (mouseX - cursorX) * delay * 10;
+                const trailY = cursorY - (mouseY - cursorY) * delay * 10;
+                
+                trail.style.left = trailX - 3 + 'px';
+                trail.style.top = trailY - 3 + 'px';
+                
+                // Fade trail based on index
+                const opacity = 1 - (index / cursorTrails.length);
+                trail.style.opacity = opacity * 0.5;
+            });
+            
+            requestAnimationFrame(animateCursor);
+        }
+
+        animateCursor();
+
+        // Click effects
+        document.addEventListener('click', (e) => {
+            // Click ripple effect
+            cursorClick.style.left = e.clientX - 20 + 'px';
+            cursorClick.style.top = e.clientY - 20 + 'px';
+            cursorClick.style.opacity = '1';
+            cursorClick.style.transform = 'translate(-50%, -50%) scale(0)';
+            
+            gsap.to(cursorClick, {
+                opacity: 0,
+                scale: 2,
+                duration: 0.6,
+                ease: 'power2.out'
+            });
+            
+            // Glitch effect
+            cursorGlitch.style.left = e.clientX - 10 + 'px';
+            cursorGlitch.style.top = e.clientY - 10 + 'px';
+            cursorGlitch.style.opacity = '1';
+            
+            gsap.to(cursorGlitch, {
+                opacity: 0,
+                duration: 0.3,
+                ease: 'power2.out',
+                onComplete: () => {
+                    cursorGlitch.style.clipPath = `polygon(${Math.random() * 100}% ${Math.random() * 100}%, ${Math.random() * 100}% ${Math.random() * 100}%, ${Math.random() * 100}% ${Math.random() * 100}%)`;
+                }
+            });
+        });
+
+        // Hover effects with custom text
+        document.querySelectorAll('[data-cursor-text]').forEach(element => {
+            element.addEventListener('mouseenter', (e) => {
+                const text = e.target.getAttribute('data-cursor-text');
+                cursorText.textContent = text;
+                cursorText.style.left = e.clientX + 'px';
+                cursorText.style.top = e.clientY - 30 + 'px';
+                cursorText.style.opacity = '1';
+                
+                // Enlarge cursor
+                gsap.to(cursor, {
+                    scale: 1.5,
+                    duration: 0.3
+                });
+                
+                gsap.to(cursorFollower, {
+                    scale: 1.2,
+                    duration: 0.3
+                });
+            });
+            
+            element.addEventListener('mouseleave', () => {
+                cursorText.style.opacity = '0';
+                
+                // Reset cursor size
+                gsap.to(cursor, {
+                    scale: 1,
+                    duration: 0.3
+                });
+                
+                gsap.to(cursorFollower, {
+                    scale: 1,
+                    duration: 0.3
+                });
+            });
+        });
+
+        // Random glitch effect - cursor
+        setInterval(() => {
+            if (Math.random() < 0.1) {
+                cursorGlitch.style.left = cursorX - 10 + 'px';
+                cursorGlitch.style.top = cursorY - 10 + 'px';
+                cursorGlitch.style.opacity = '0.8';
+                
+                gsap.to(cursorGlitch, {
+                    opacity: 0,
+                    duration: 0.2,
+                    ease: 'power2.out'
+                });
+            }
+        }, 2000);
+
+        // Three.js Scene Setup
+        const container = document.getElementById('three-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        // Add glow effect to renderer
+        renderer.domElement.style.filter = 'url(#glow)';
+
+        // Create SVG filter for glow effect
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('width', '0');
+        svg.setAttribute('height', '0');
+        
+        const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+        filter.setAttribute('id', 'glow');
+        
+        const gaussianBlur = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
+        gaussianBlur.setAttribute('stdDeviation', '3');
+        gaussianBlur.setAttribute('result', 'coloredBlur');
+        
+        const feMerge = document.createElementNS('http://www.w3.org/2000/svg', 'feMerge');
+        const feMergeNode1 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
+        feMergeNode1.setAttribute('in', 'coloredBlur');
+        const feMergeNode2 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
+        feMergeNode2.setAttribute('in', 'SourceGraphic');
+        
+        feMerge.appendChild(feMergeNode1);
+        feMerge.appendChild(feMergeNode2);
+        filter.appendChild(gaussianBlur);
+        filter.appendChild(feMerge);
+        svg.appendChild(filter);
+        document.body.appendChild(svg);
+
+        // Create pixelated texture
+        const createPixelTexture = (color) => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 8;
+            canvas.height = 8;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = color;
+            ctx.fillRect(0, 0, 8, 8);
+            return new THREE.CanvasTexture(canvas);
+        };
+
+        // Create pixel cubes
+        const pixelCubes = [];
+        const colors = ['#F39C12', '#3498DB', '#2ECC71', '#E74C3C', '#9B59B6'];
+        
+        for (let i = 0; i < 50; i++) {
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
+            const material = new THREE.MeshBasicMaterial({
+                map: createPixelTexture(colors[Math.floor(Math.random() * colors.length)]),
+                transparent: true,
+                opacity: 0.8
+            });
+            const cube = new THREE.Mesh(geometry, material);
+            
+            // Random position
+            cube.position.x = (Math.random() - 0.5) * 50;
+            cube.position.y = (Math.random() - 0.5) * 30;
+            cube.position.z = (Math.random() - 0.5) * 30;
+            
+            // Random rotation speed
+            cube.userData.rotationSpeed = {
+                x: (Math.random() - 0.5) * 0.02,
+                y: (Math.random() - 0.5) * 0.02,
+                z: (Math.random() - 0.5) * 0.02
+            };
+            
+            // Random float speed
+            cube.userData.floatSpeed = Math.random() * 0.01 + 0.005;
+            cube.userData.floatOffset = Math.random() * Math.PI * 2;
+            
+            // Store initial state
+            cube.userData.initialState = {
+                position: cube.position.clone(),
+                rotation: cube.rotation.clone(),
+                scale: cube.scale.clone()
+            };
+            
+            scene.add(cube);
+            pixelCubes.push(cube);
+        }
+
+        // Position camera
+        camera.position.z = 15;
+
+        // Mouse position tracking for Three.js
+        const threeMouse = new THREE.Vector2();
+        document.addEventListener('mousemove', (event) => {
+            threeMouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            threeMouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        // Section configurations for 3D animations
+        const sectionConfigs = {
+            home: {
+                camera: { z: 15 },
+                animation: (cubes) => {
+                    cubes.forEach((cube, i) => {
+                        gsap.to(cube.position, {
+                            x: cube.userData.initialState.position.x,
+                            y: cube.userData.initialState.position.y,
+                            z: cube.userData.initialState.position.z,
+                            duration: 1.5,
+                            ease: 'power3.inOut',
+                            delay: i * 0.01
+                        });
+                        gsap.to(cube.rotation, {
+                            x: cube.userData.initialState.rotation.x,
+                            y: cube.userData.initialState.rotation.y,
+                            z: cube.userData.initialState.rotation.z,
+                            duration: 1.5,
+                            ease: 'power3.inOut',
+                            delay: i * 0.01
+                        });
+                        gsap.to(cube.scale, {
+                            x: 1,
+                            y: 1,
+                            z: 1,
+                            duration: 1.5,
+                            ease: 'power3.inOut',
+                            delay: i * 0.01
+                        });
+                    });
+                }
+            },
+            about: {
+                camera: { z: 20 },
+                animation: (cubes) => {
+                    // Form a pixel face pattern
+                    const facePattern = [
+                        [0,0,1,1,1,1,1,1,0,0],
+                        [0,1,0,0,0,0,0,0,1,0],
+                        [1,0,1,0,0,0,0,1,0,1],
+                        [1,0,0,0,0,0,0,0,0,1],
+                        [1,0,1,0,0,0,0,1,0,1],
+                        [1,0,0,1,1,1,1,0,0,1],
+                        [0,1,0,0,0,0,0,0,1,0],
+                        [0,0,1,1,1,1,1,1,0,0]
+                    ];
+                    
+                    cubes.forEach((cube, i) => {
+                        const row = Math.floor(i / 10);
+                        const col = i % 10;
+                        
+                        if (row < facePattern.length && col < facePattern[0].length && facePattern[row][col] === 1) {
+                            gsap.to(cube.position, {
+                                x: (col - 5) * 1.5,
+                                y: (4 - row) * 1.5,
+                                z: 0,
+                                duration: 1.5,
+                                ease: 'power3.inOut',
+                                delay: i * 0.02
+                            });
+                            gsap.to(cube.rotation, {
+                                x: 0,
+                                y: 0,
+                                z: 0,
+                                duration: 1.5,
+                                ease: 'power3.inOut',
+                                delay: i * 0.02
+                            });
+                            gsap.to(cube.scale, {
+                                x: 1.2,
+                                y: 1.2,
+                                z: 1.2,
+                                duration: 1.5,
+                                ease: 'power3.inOut',
+                                delay: i * 0.02
+                            });
+                        } else {
+                            gsap.to(cube.scale, {
+                                x: 0,
+                                y: 0,
+                                z: 0,
+                                duration: 1.5,
+                                ease: 'power3.inOut',
+                                delay: i * 0.02
+                            });
+                        }
+                    });
+                }
+            },
+            skills: {
+                camera: { z: 25 },
+                animation: (cubes) => {
+                    // Form skill bars
+                    const skillLevels = [9, 9, 8, 8, 8, 7]; // Representing skill percentages
+                    const barWidth = 3;
+                    const barSpacing = 4;
+                    
+                    cubes.forEach((cube, i) => {
+                        const barIndex = Math.floor(i / (barWidth * 10));
+                        const blockInBar = i % (barWidth * 10);
+                        const row = Math.floor(blockInBar / barWidth);
+                        const col = blockInBar % barWidth;
+                        
+                        if (barIndex < skillLevels.length && row < skillLevels[barIndex]) {
+                            gsap.to(cube.position, {
+                                x: (barIndex - 2.5) * barSpacing + (col - 1) * 1.2,
+                                y: row * 1.2 - 4,
+                                z: 0,
+                                duration: 1.5,
+                                ease: 'power3.inOut',
+                                delay: i * 0.01
+                            });
+                            gsap.to(cube.rotation, {
+                                x: 0,
+                                y: 0,
+                                z: 0,
+                                duration: 1.5,
+                                ease: 'power3.inOut',
+                                delay: i * 0.01
+                            });
+                            gsap.to(cube.scale, {
+                                x: 1,
+                                y: 1,
+                                z: 1,
+                                duration: 1.5,
+                                ease: 'power3.inOut',
+                                delay: i * 0.01
+                            });
+                        } else {
+                            gsap.to(cube.scale, {
+                                x: 0,
+                                y: 0,
+                                z: 0,
+                                duration: 1.5,
+                                ease: 'power3.inOut',
+                                delay: i * 0.01
+                            });
+                        }
+                    });
+                }
+            },
+            projects: {
+                camera: { z: 30 },
+                animation: (cubes) => {
+                    // Form project cubes
+                    const projectPositions = [
+                        { x: -8, y: 0, z: 0 },
+                        { x: 0, y: 0, z: 0 },
+                        { x: 8, y: 0, z: 0 }
+                    ];
+                    
+                    cubes.forEach((cube, i) => {
+                        const projectIndex = Math.floor(i / 16);
+                        const blockInProject = i % 16;
+                        const row = Math.floor(blockInProject / 4);
+                        const col = blockInProject % 4;
+                        
+                        if (projectIndex < projectPositions.length) {
+                            gsap.to(cube.position, {
+                                x: projectPositions[projectIndex].x + (col - 1.5) * 1.2,
+                                y: projectPositions[projectIndex].y + (row - 1.5) * 1.2,
+                                z: projectPositions[projectIndex].z,
+                                duration: 1.5,
+                                ease: 'power3.inOut',
+                                delay: i * 0.01
+                            });
+                            gsap.to(cube.rotation, {
+                                x: 0,
+                                y: Math.PI * 0.25,
+                                z: 0,
+                                duration: 1.5,
+                                ease: 'power3.inOut',
+                                delay: i * 0.01
+                            });
+                            gsap.to(cube.scale, {
+                                x: 1,
+                                y: 1,
+                                z: 1,
+                                duration: 1.5,
+                                ease: 'power3.inOut',
+                                delay: i * 0.01
+                            });
+                        } else {
+                            gsap.to(cube.scale, {
+                                x: 0,
+                                y: 0,
+                                z: 0,
+                                duration: 1.5,
+                                ease: 'power3.inOut',
+                                delay: i * 0.01
+                            });
+                        }
+                    });
+                }
+            },
+            blogs: {
+                camera: { z: 25 },
+                animation: (cubes) => {
+                    // Form book pages
+                    cubes.forEach((cube, i) => {
+                        const row = Math.floor(i / 10);
+                        const col = i % 10;
+                        
+                        if (row < 5 && col < 8) {
+                            gsap.to(cube.position, {
+                                x: (col - 4) * 1.2,
+                                y: (2 - row) * 1.2,
+                                z: 0,
+                                duration: 1.5,
+                                ease: 'power3.inOut',
+                                delay: i * 0.01
+                            });
+                            gsap.to(cube.rotation, {
+                                x: 0,
+                                y: 0,
+                                z: 0,
+                                duration: 1.5,
+                                ease: 'power3.inOut',
+                                delay: i * 0.01
+                            });
+                            gsap.to(cube.scale, {
+                                x: 1,
+                                y: 1,
+                                z: 0.1,
+                                duration: 1.5,
+                                ease: 'power3.inOut',
+                                delay: i * 0.01
+                            });
+                        } else {
+                            gsap.to(cube.scale, {
+                                x: 0,
+                                y: 0,
+                                z: 0,
+                                duration: 1.5,
+                                ease: 'power3.inOut',
+                                delay: i * 0.01
+                            });
+                        }
+                    });
+                }
+            },
+            contact: {
+                camera: { z: 20 },
+                animation: (cubes) => {
+                    // Form envelope shape
+                    const envelopePattern = [
+                        [0,0,0,1,1,1,1,0,0,0],
+                        [0,0,1,1,1,1,1,1,0,0],
+                        [0,1,1,1,1,1,1,1,1,0],
+                        [1,1,1,1,1,1,1,1,1,1],
+                        [1,1,1,1,1,1,1,1,1,1],
+                        [1,1,1,1,1,1,1,1,1,1],
+                        [1,1,1,1,1,1,1,1,1,1],
+                        [1,1,1,1,1,1,1,1,1,1]
+                    ];
+                    
+                    cubes.forEach((cube, i) => {
+                        const row = Math.floor(i / 10);
+                        const col = i % 10;
+                        
+                        if (row < envelopePattern.length && col < envelopePattern[0].length && envelopePattern[row][col] === 1) {
+                            gsap.to(cube.position, {
+                                x: (col - 5) * 1.2,
+                                y: (4 - row) * 1.2,
+                                z: 0,
+                                duration: 1.5,
+                                ease: 'power3.inOut',
+                                delay: i * 0.02
+                            });
+                            gsap.to(cube.rotation, {
+                                x: 0,
+                                y: 0,
+                                z: 0,
+                                duration: 1.5,
+                                ease: 'power3.inOut',
+                                delay: i * 0.02
+                            });
+                            gsap.to(cube.scale, {
+                                x: 1,
+                                y: 1,
+                                z: 0.2,
+                                duration: 1.5,
+                                ease: 'power3.inOut',
+                                delay: i * 0.02
+                            });
+                        } else {
+                            gsap.to(cube.scale, {
+                                x: 0,
+                                y: 0,
+                                z: 0,
+                                duration: 1.5,
+                                ease: 'power3.inOut',
+                                delay: i * 0.02
+                            });
+                        }
+                    });
+                }
+            }
+        };
+
+        // Set up scroll triggers for each section
+        Object.keys(sectionConfigs).forEach(sectionId => {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                ScrollTrigger.create({
+                    trigger: section,
+                    start: 'top center',
+                    end: 'bottom center',
+                    onEnter: () => {
+                        // Update camera position
+                        gsap.to(camera.position, {
+                            z: sectionConfigs[sectionId].camera.z,
+                            duration: 1.5,
+                            ease: 'power3.inOut'
+                        });
+                        
+                        // Trigger section animation
+                        sectionConfigs[sectionId].animation(pixelCubes);
+                    },
+                    onLeaveBack: () => {
+                        // Find previous section
+                        const sections = Object.keys(sectionConfigs);
+                        const currentIndex = sections.indexOf(sectionId);
+                        if (currentIndex > 0) {
+                            const prevSection = sections[currentIndex - 1];
+                            gsap.to(camera.position, {
+                                z: sectionConfigs[prevSection].camera.z,
+                                duration: 1.5,
+                                ease: 'power3.inOut'
+                            });
+                            sectionConfigs[prevSection].animation(pixelCubes);
+                        }
+                    }
+                });
+            }
+        });
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate pixel cubes
+            pixelCubes.forEach((cube, index) => {
+                if (cube.scale.x > 0.1) { // Only animate visible cubes
+                    cube.rotation.x += cube.userData.rotationSpeed.x;
+                    cube.rotation.y += cube.userData.rotationSpeed.y;
+                    cube.rotation.z += cube.userData.rotationSpeed.z;
+                    
+                    // Float animation
+                    cube.position.y += Math.sin(Date.now() * cube.userData.floatSpeed + cube.userData.floatOffset) * 0.01;
+                }
+            });
+
+            // Camera movement based on mouse
+            camera.position.x += (threeMouse.x * 5 - camera.position.x) * 0.05;
+            camera.position.y += (threeMouse.y * 5 - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // GSAP Animations for content
+        // Hero section animations
+        const heroTl = gsap.timeline();
+        heroTl
+            .to('.hero-title', {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                ease: 'power3.out'
+            })
+            .to('.hero-subtitle', {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                ease: 'power3.out'
+            }, '-=0.5')
+            .to('.pixel-button', {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                ease: 'power3.out'
+            }, '-=0.5');
+
+        // Section title animations
+        gsap.utils.toArray('.section-title').forEach(title => {
+            gsap.to(title, {
+                scrollTrigger: {
+                    trigger: title,
+                    start: 'top 80%',
+                    end: 'bottom 20%',
+                    toggleActions: 'play none none reverse'
+                },
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                ease: 'power3.out'
+            });
+        });
+
+        // About section animation
+        gsap.to('.about-content', {
+            scrollTrigger: {
+                trigger: '.about-content',
+                start: 'top 80%',
+                end: 'bottom 20%',
+                toggleActions: 'play none none reverse'
+            },
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: 'power3.out'
+        });
+
+        // Skills section animation
+        gsap.to('.skills-grid', {
+            scrollTrigger: {
+                trigger: '.skills-grid',
+                start: 'top 80%',
+                end: 'bottom 20%',
+                toggleActions: 'play none none reverse',
+                onEnter: () => {
+                    // Animate skill bars
+                    gsap.utils.toArray('.skill-progress').forEach(bar => {
+                        gsap.to(bar, {
+                            width: bar.getAttribute('data-width'),
+                            duration: 1.5,
+                            ease: 'power3.out'
+                        });
+                    });
+                }
+            },
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: 'power3.out'
+        });
+
+        // Projects section animation
+        gsap.to('.projects-grid', {
+            scrollTrigger: {
+                trigger: '.projects-grid',
+                start: 'top 80%',
+                end: 'bottom 20%',
+                toggleActions: 'play none none reverse'
+            },
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: 'power3.out'
+        });
+
+        // Blogs section animation
+        gsap.to('.blogs-grid', {
+            scrollTrigger: {
+                trigger: '.blogs-grid',
+                start: 'top 80%',
+                end: 'bottom 20%',
+                toggleActions: 'play none none reverse'
+            },
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: 'power3.out'
+        });
+
+        // Contact section animation
+        gsap.to('.contact-content', {
+            scrollTrigger: {
+                trigger: '.contact-content',
+                start: 'top 80%',
+                end: 'bottom 20%',
+                toggleActions: 'play none none reverse'
+            },
+            opacity: 1,
+            y: 0,
+            duration: 1,
+            ease: 'power3.out'
+        });
+
+        // Form submission
+        document.querySelector('.contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('MESSAGE SENT! (THIS IS A DEMO - FORM NOT ACTUALLY SUBMITTED)');
+            this.reset();
+        });
+
+        // Add pixelated hover effect to project and blog cards
+        const cards = document.querySelectorAll('.project-card, .blog-card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.boxShadow = '0 0 0 4px #F39C12';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.boxShadow = 'none';
+            });
+        });
+
+        // Blog read more click handler
+        document.querySelectorAll('.read-more').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('BLOG POST OPENED! (THIS IS A DEMO)');
+            });
+        });
+
+        // Randomly trigger screen crack effect
+        setInterval(() => {
+            const screenCrack = document.querySelector('.screen-crack');
+            screenCrack.style.animation = 'none';
+            setTimeout(() => {
+                screenCrack.style.animation = 'crack 5s infinite';
+            }, 10);
+        }, Math.random() * 10000 + 5000); // Random interval between 5-15 seconds
+    
+    </script>
+</body>
+</html>
